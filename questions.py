@@ -4,10 +4,7 @@
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
+from time import sleep
 
 def get_answer_views_upvotes(cnt):
     '''
@@ -54,11 +51,14 @@ def get_write_date(date_str):
 
     months = {v: k for k, v in enumerate(calendar.month_abbr)}
     if date_str[0].split()[-2] not in months:
-        res = {'Mon': '2017-01-30 00:00:00', 'Tue': '2017-01-30 00:00:00',
-               'Wed': '2017-02-01 00:00:00', 'Thu': '2017-02-02 00:00:00',
-               'Fri': '2017-02-03 00:00:00', 'Sat': '2017-02-04 00:00:00',
-               'Sun': '2017-01-29 00:00:00'}[date_str[0].split()[-1]]
-        return res
+        try:
+            res = {'Mon': '2017-01-30 00:00:00', 'Tue': '2017-01-30 00:00:00',
+                   'Wed': '2017-02-01 00:00:00', 'Thu': '2017-02-02 00:00:00',
+                   'Fri': '2017-02-03 00:00:00', 'Sat': '2017-02-04 00:00:00',
+                   'Sun': '2017-01-29 00:00:00'}[date_str[0].split()[-1]]
+            return res
+        except KeyError:
+            return '2017-02-03 00:00:00'
     res = "{:s}-{:02d}-{:s} 00:00:00"
 
     if len(date_str) > 1:
@@ -94,7 +94,7 @@ def get_info_of_each_question(question_url):
         cnt_answers = int(cnt_answers[:-1])
 
     # 问题标题
-    title = driver.find_element_by_xpath("//div[@class='header']//span[@class='rendered_qtext']").text.encode('utf-8')
+    title = driver.find_element_by_xpath("//div[@class='header']//span[@class='rendered_qtext']").text.encode('utf-8').strip()
     print("问题:{:s}".format(title))
     # 问题的详细描述
     question_details = driver.find_element_by_xpath("//div[@class='question_details']").text.encode('utf-8')
@@ -118,7 +118,8 @@ def get_info_of_each_question(question_url):
     while True:
         # 把滚动条拖到最下面
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        driver.implicitly_wait(5)  # 等待5秒
+        sleep(3)    # 等待3秒
+        # driver.implicitly_wait(5)  # 等待5秒
 
         user_elems = driver.find_elements_by_xpath(
             "//div[@class='pagedlist_item']//a[starts-with(@name,'answer_')]/following-sibling::div[@class='Answer AnswerBase']")
@@ -132,8 +133,8 @@ def get_info_of_each_question(question_url):
         # 回答者名字
         try:
             link_elem = elem.find_element_by_xpath(".//a[starts-with(@class,'user')]")
-            user_name = link_elem.text.encode('utf-8')
-            user_url = link_elem.get_attribute("href")
+            user_name = link_elem.text.encode('utf-8').strip()
+            user_url = link_elem.get_attribute("href").strip()
             print('name:{:s},link:{:s}'.format(user_name, user_url))
         except NoSuchElementException:
             user_name = elem.find_element_by_xpath(".//span[contains(@class,'anon_user')]").text.encode('utf-8')
@@ -170,18 +171,22 @@ def get_info_of_each_question(question_url):
         true_ans_num += 1
 
         print '我是分割线------------------我是分割线'
-    dump_question_into_db((question_url, title, asked_date, str(true_ans_num),
+    dump_question_into_db((question_url.strip(), title, asked_date, str(true_ans_num),
                            str(views), str(followers), tags, question_details), 'question')
     dump_answer_into_db(ans_info, 'answer')
     driver.quit()
 
 
 if __name__ == '__main__':
-    with open('data/question/question_url_list') as fr:
+    with open('data/question/question_url_list_no_duplicate') as fr:
         q_urls = fr.readlines()
-    start = 18
-    batch = 982
+    start = 564
+    batch = 436
     with open('data/question/has_crawlered', 'a') as fw:
         for q_url in q_urls[start:start + batch]:
-            get_info_of_each_question(q_url)
-            fw.write('%s\n' % q_url)
+            try:
+                get_info_of_each_question(q_url)
+            except:
+                pass
+            finally:
+                fw.write('%s' % q_url)

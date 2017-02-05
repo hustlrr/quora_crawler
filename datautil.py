@@ -6,7 +6,7 @@ import MySQLdb
 
 def dump_question_into_db(question_info, table):
     # 打开数据库连接
-    conn = MySQLdb.connect("localhost", "root", "liuruoran", "paper", charset="utf8")
+    conn = MySQLdb.connect("localhost", "root", "liuruoran", "papers", charset="utf8")
     conn.ping(True)
     # 使用cursor()方法获取操作游标
     cursor = conn.cursor()
@@ -26,7 +26,7 @@ def dump_question_into_db(question_info, table):
 
 def dump_answer_into_db(answer_info, table):
     # 打开数据库连接
-    conn = MySQLdb.connect("localhost", "root", "liuruoran", "paper", charset="utf8")
+    conn = MySQLdb.connect("localhost", "root", "liuruoran", "papers", charset="utf8")
     conn.ping(True)
     # 使用cursor()方法获取操作游标
     cursor = conn.cursor()
