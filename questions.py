@@ -171,17 +171,21 @@ def get_info_of_each_question(question_url):
         true_ans_num += 1
 
         print '我是分割线------------------我是分割线'
-    dump_question_into_db((question_url.strip(), title, asked_date, str(true_ans_num),
-                           str(views), str(followers), tags, question_details), 'question')
-    dump_answer_into_db(ans_info, 'answer')
+    if dump_question_into_db((question_url.strip(), title, asked_date, str(true_ans_num),
+                           str(views), str(followers), tags, question_details), 'question'):
+        dump_answer_into_db(ans_info, 'answer')
     driver.quit()
 
 
 if __name__ == '__main__':
     with open('data/question/question_url_list_no_duplicate') as fr:
         q_urls = fr.readlines()
-    start = 564
-    batch = 436
+    # start = 688
+    # batch = 312
+
+    start = 1160
+    batch = 840
+
     with open('data/question/has_crawlered', 'a') as fw:
         for q_url in q_urls[start:start + batch]:
             try:

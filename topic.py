@@ -3,9 +3,8 @@
 # Created by lruoran on 17-1-31
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
 from login import add_cookies, login
-
+from time import sleep
 
 def get_topic_list(init_url, total=2000):
     '''
@@ -51,7 +50,7 @@ def get_user_url_of_each_topic(topic_url):
     while True:
         # 把滚动条拖到最下面
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        driver.implicitly_wait(5)  # 等待5秒
+        sleep(5)  # 等待5秒
 
         user_elems = driver.find_elements_by_xpath(
             "//div[@class='LeaderboardListItem']//span[@class='photo_tooltip']//a")
@@ -85,14 +84,14 @@ def get_question_url_of_each_topic(topic_url):
     while True:
         # 把滚动条拖到最下面
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        driver.implicitly_wait(5)  # 等待5秒
+        sleep(5)# 等待5秒
 
         user_elems = driver.find_elements_by_xpath("//a[@class='question_link']")
         cnt = len(user_elems)
         if cnt == 0:  # 说明该topic可能已经不存在
             return
         print(cnt, topic)
-        if cnt >= 80 or driver.find_elements_by_xpath("//div[contains(@class,'FeedBottomIndicator')]") != []:
+        if cnt >= 80:
             break
 
     with open("data/question/question_url_list", "a") as fw:
@@ -117,6 +116,6 @@ if __name__ == '__main__':
 
     with open("data/topic_url_list") as fr:
         topic_urls = fr.readlines()
-    for i, topic_url in enumerate(topic_urls[250:]):
+    for i, topic_url in enumerate(topic_urls[312:]):
         print(i + 1)
         get_question_url_of_each_topic(topic_url)
