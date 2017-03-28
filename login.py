@@ -6,8 +6,8 @@ import cPickle
 
 
 def login():
-    user = '823729390@qq.com'
-    password = '823729390lrr'
+    user = ''
+    password = ''
     # 模拟登录
     driver = webdriver.PhantomJS(r'/home/lruoran/software/phantomjs/bin/phantomjs')
     driver.get("https://www.quora.com/")
